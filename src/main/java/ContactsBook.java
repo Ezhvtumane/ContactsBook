@@ -5,8 +5,22 @@ import java.util.ArrayList;
  */
 public class ContactsBook {
 
-    ArrayList<Person> persons;
+    private ArrayList<Person> persons;
 
+    public ContactsBook() {
+        this.persons = new ArrayList<Person>();
+    }
 
+    public void addContact(Person person) {
+        this.persons.add(person);
+    }
+
+    public void deleteContact(Person person) {
+        this.persons.remove(person);
+    }
+
+    public Person getContact(Person person){
+        //Iterator need
+    }
 
 }
