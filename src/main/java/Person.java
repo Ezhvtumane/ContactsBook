@@ -1,11 +1,17 @@
-/**
- * Created by ubuntu on 21.05.16.
- */
 public class Person {
 
     private String name;
     private String phoneNumber;
     private String email;
+
+    public Person() {
+    }
+
+    public Person(String name, String phoneNumber, String email) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.email = email;
+    }
 
     public void setEmail(String email) {
         this.email = email;
@@ -32,4 +38,9 @@ public class Person {
         return email;
     }
 
+    @Override
+    public String toString() {
+        return "Name: " + this.name + ", phone number: " + this.phoneNumber
+                + ", e-mail: " + this.email;
+    }
 }
