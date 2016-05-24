@@ -1,3 +1,5 @@
+import com.thoughtworks.xstream.XStream;
+
 import java.util.ArrayList;
 
 /**
@@ -36,9 +38,58 @@ public class ContactsBook {
         }
     }
 
-    public void loadToXmlFile() {
+    public String convertToXmlString() {
+        XStream xstream = new XStream();
+        xstream.alias("person", Person.class);
+        xstream.alias("ContactsBook", ContactsBook.class);
+        xstream.addImplicitCollection(ContactsBook.class, "persons");
 
+        String xml = "<ContactsBook>\n" +
+                "  <person>\n" +
+                "    <name>Name1</name>\n" +
+                "    <phoneNumber>+1888999</phoneNumber>\n" +
+                "    <email>111ru@ru.ru</email>\n" +
+                "  </person>\n" +
+                "  <person>\n" +
+                "    <name>Name2</name>\n" +
+                "    <phoneNumber>+2888999</phoneNumber>\n" +
+                "    <email>22ru@ru.ru</email>\n" +
+                "  </person>\n" +
+                "  <person>\n" +
+                "    <name>Name3</name>\n" +
+                "    <phoneNumber>+3888999</phoneNumber>\n" +
+                "    <email>3ru@ru.ru</email>\n" +
+                "  </person>\n" +
+                "</ContactsBook>";
+        ContactsBook pList = (ContactsBook)xstream.fromXML(xml);
+
+pList.showAllContacts();
+        return xstream.toXML(this);
     }
+
+   /* public ContactsBook convertFromXmlString() {
+        XStream xstream = new XStream();
+        xstream.alias("person", Person.class);
+        xstream.alias("ContactsBook", ContactsBook.class);
+        ContactsBook cb = (ContactsBook)xstream.fromXML("<ContactsBook>\n" +
+                "  <person>\n" +
+                "    <name>Name1</name>\n" +
+                "    <phoneNumber>+1888999</phoneNumber>\n" +
+                "    <email>111ru@ru.ru</email>\n" +
+                "  </person>\n" +
+                "  <person>\n" +
+                "    <name>Name2</name>\n" +
+                "    <phoneNumber>+2888999</phoneNumber>\n" +
+                "    <email>22ru@ru.ru</email>\n" +
+                "  </person>\n" +
+                "  <person>\n" +
+                "    <name>Name3</name>\n" +
+                "    <phoneNumber>+3888999</phoneNumber>\n" +
+                "    <email>3ru@ru.ru</email>\n" +
+                "  </person>\n" +
+                "</ContactsBook>");
+        return cb;
+    }*/
 
     public static void main(String args[]) {
 
@@ -52,7 +103,11 @@ public class ContactsBook {
         cb.addContact(prs2);
         cb.addContact(prs3);
 
+        System.out.println(cb.convertToXmlString());
+
         cb.showAllContacts();
+
+
 
         for (Person person : cb.findContactByName("Name1")) {
             System.out.println(person.toString());
@@ -67,6 +122,9 @@ public class ContactsBook {
         cb.showAllContacts();
 
         cb.deleteContact(prs3);
+
+       /* cb.convertFromXmlString();*/
+        cb.showAllContacts();
 
     }
 

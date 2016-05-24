@@ -14,8 +14,11 @@
             <groupId>com.thoughtworks.xstream</groupId>
             <artifactId>xstream</artifactId>
             <version>1.4.9</version>
-            <systemPath>${project.basedir}/src/main/resources/lib/xstream-1.4.9.jar</systemPath>
+            <!--
+            <systemPath>${basedir}/src/main/resources/lib/xstream-1.4.9.jar</systemPath>
             <scope>system</scope>
+не работает с локальным файлом в lib
+            -->
         </dependency>
     </dependencies>
 
