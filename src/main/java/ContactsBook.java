@@ -1,10 +1,10 @@
 import com.thoughtworks.xstream.XStream;
 
+import java.awt.peer.SystemTrayPeer;
+import java.io.*;
+import java.nio.channels.Pipe;
 import java.util.ArrayList;
 
-/**
- * Created by ubuntu on 21.05.16.
- */
 public class ContactsBook {
 
     private ArrayList<Person> persons;
@@ -44,87 +44,129 @@ public class ContactsBook {
         xstream.alias("ContactsBook", ContactsBook.class);
         xstream.addImplicitCollection(ContactsBook.class, "persons");
 
-        String xml = "<ContactsBook>\n" +
-                "  <person>\n" +
-                "    <name>Name1</name>\n" +
-                "    <phoneNumber>+1888999</phoneNumber>\n" +
-                "    <email>111ru@ru.ru</email>\n" +
-                "  </person>\n" +
-                "  <person>\n" +
-                "    <name>Name2</name>\n" +
-                "    <phoneNumber>+2888999</phoneNumber>\n" +
-                "    <email>22ru@ru.ru</email>\n" +
-                "  </person>\n" +
-                "  <person>\n" +
-                "    <name>Name3</name>\n" +
-                "    <phoneNumber>+3888999</phoneNumber>\n" +
-                "    <email>3ru@ru.ru</email>\n" +
-                "  </person>\n" +
-                "</ContactsBook>";
-        ContactsBook pList = (ContactsBook)xstream.fromXML(xml);
-
-pList.showAllContacts();
         return xstream.toXML(this);
     }
 
-   /* public ContactsBook convertFromXmlString() {
+    public void convertFromXmlString() {
         XStream xstream = new XStream();
         xstream.alias("person", Person.class);
         xstream.alias("ContactsBook", ContactsBook.class);
-        ContactsBook cb = (ContactsBook)xstream.fromXML("<ContactsBook>\n" +
-                "  <person>\n" +
-                "    <name>Name1</name>\n" +
-                "    <phoneNumber>+1888999</phoneNumber>\n" +
-                "    <email>111ru@ru.ru</email>\n" +
-                "  </person>\n" +
-                "  <person>\n" +
-                "    <name>Name2</name>\n" +
-                "    <phoneNumber>+2888999</phoneNumber>\n" +
-                "    <email>22ru@ru.ru</email>\n" +
-                "  </person>\n" +
-                "  <person>\n" +
-                "    <name>Name3</name>\n" +
-                "    <phoneNumber>+3888999</phoneNumber>\n" +
-                "    <email>3ru@ru.ru</email>\n" +
-                "  </person>\n" +
-                "</ContactsBook>");
-        return cb;
-    }*/
+        xstream.addImplicitCollection(ContactsBook.class, "persons");
+
+        ContactsBook cb = (ContactsBook) xstream.fromXML(this.openXmlStringFromFile());
+        for (Person person : cb.persons) {
+            this.persons.add(person);
+        }
+    }
+
+    public void saveXmlStringToFile() {
+        try {
+            FileWriter fileWriter = new FileWriter("ContactsBook.xml", false);
+
+            try {
+                fileWriter.write(this.convertToXmlString());
+                fileWriter.flush();
+            } finally {
+                fileWriter.close();
+            }
+
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public String openXmlStringFromFile() {
+        String s = null;
+
+        try {
+            FileReader reader = new FileReader("ContactsBook.xml");
+            int c;
+            while ((c = reader.read()) != -1) {
+                s += (char) c;
+            }
+            reader.close();
+        } catch (IOException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return s;
+    }
 
     public static void main(String args[]) {
 
-        Person prs1 = new Person("Name1", "+1888999", "111ru@ru.ru");
-        Person prs2 = new Person("Name2", "+2888999", "22ru@ru.ru");
-        Person prs3 = new Person("Name3", "+3888999", "3ru@ru.ru");
+        boolean isExit = false;
+        System.out.println("Приложение Записная книжка.");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        String operation = null;
+        String buff = null;
 
-        ContactsBook cb = new ContactsBook();
+        ContactsBook contactsBook = new ContactsBook();
+        contactsBook.openXmlStringFromFile();
 
-        cb.addContact(prs1);
-        cb.addContact(prs2);
-        cb.addContact(prs3);
+        while (!isExit) {
+            System.out.println("Введите код операции:\n" +
+                    "1 - Добавить новый контакт;\n" +
+                    "2 - Показать все записанные контакты;\n" +
+                    "3 - Найти контакт по имени;\n" +
+                    "4 - Удалить контакт\n");
+            try {
+                operation = reader.readLine();
+            } catch (IOException e) {
+                e.getMessage();
+            }
 
-        System.out.println(cb.convertToXmlString());
+            while (!operation.equals("1") & !operation.equals("2")
+                    & !operation.equals("3") & !operation.equals("4")
+                    & !operation.equals("exit")) {
+                System.out.println("Введите код операции, попробуйте еще раз:");
+                try {
+                    operation = reader.readLine();        // если ввели некорректное значение - переспрашиваем
+                } catch (IOException e) {
+                    e.getMessage();
+                }
+            }
+            if (operation.equals("exit")) {
+                System.out.println("Всего доброго! Ждем Вас снова!");
+                System.exit(-1);
+            }
 
-        cb.showAllContacts();
+            switch (Integer.parseInt(operation)) {
+                case 1: {
+                    contactsBook.addContact(Person.addNewPerson());
+                }
+                break;
+                case 2: {
+                    contactsBook.showAllContacts();
+                }
+                break;
+                case 3: {
+                    try {
+                        System.out.println("Введите имя для поиска: ");
+                        buff = reader.readLine();
+                        System.out.println("Найдены следующие контакты:");
+                        for (Person person : contactsBook.findContactByName(buff)) {
+                            System.out.println(person.toString() + "\n");
+                        }
 
-
-
-        for (Person person : cb.findContactByName("Name1")) {
-            System.out.println(person.toString());
+                    } catch (IOException e) {
+                        e.getMessage();
+                    }
+                }
+                break;
+                case 4: {
+                    try {
+                        System.out.println("Введите имя контакта для удаления: ");
+                        buff = reader.readLine();
+                        for (Person person : contactsBook.findContactByName(buff)) {
+                            System.out.println("Будет удален следующий контакт: " + person.toString() + "\n");
+                            contactsBook.deleteContact(person);
+                        }
+                    } catch (IOException e) {
+                        e.getMessage();
+                    }
+                }
+                break;
+            }
         }
-
-        cb.deleteContact(prs2);
-
-        cb.showAllContacts();
-
-        cb.deleteContact(prs1);
-
-        cb.showAllContacts();
-
-        cb.deleteContact(prs3);
-
-       /* cb.convertFromXmlString();*/
-        cb.showAllContacts();
 
     }
 

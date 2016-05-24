@@ -1,3 +1,7 @@
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 public class Person {
 
     private String name;
@@ -42,5 +46,24 @@ public class Person {
     public String toString() {
         return "Name: " + this.name + ", phone number: " + this.phoneNumber
                 + ", e-mail: " + this.email;
+    }
+
+    public static Person addNewPerson() {
+        Person person = new Person();
+        String buff = null;
+        boolean flag = true;
+        System.out.println("Введите, пожалуйста, данные контакта. Имя, телефонный номер, адрес электроной почты.");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+        try {
+            System.out.println("Имя: ");
+            person.setName(reader.readLine());
+            System.out.println("Телефонный номер: ");
+            person.setName(reader.readLine());
+            System.out.println("Адрес электронной почты: ");
+            person.setName(reader.readLine());
+        } catch (IOException e) {
+            e.getMessage();
+        }
+        return person;
     }
 }
