@@ -58,9 +58,9 @@ public class Person {
             System.out.println("Имя: ");
             person.setName(reader.readLine());
             System.out.println("Телефонный номер: ");
-            person.setName(reader.readLine());
+            person.setPhoneNumber(reader.readLine());
             System.out.println("Адрес электронной почты: ");
-            person.setName(reader.readLine());
+            person.setEmail(reader.readLine());
         } catch (IOException e) {
             e.getMessage();
         }

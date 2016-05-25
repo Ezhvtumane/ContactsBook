@@ -47,25 +47,27 @@ public class ContactsBook {
         return xstream.toXML(this);
     }
 
-    public void convertFromXmlString() {
+    public void convertFromXmlString(String s) {
         XStream xstream = new XStream();
         xstream.alias("person", Person.class);
         xstream.alias("ContactsBook", ContactsBook.class);
         xstream.addImplicitCollection(ContactsBook.class, "persons");
-
-        ContactsBook cb = (ContactsBook) xstream.fromXML(this.openXmlStringFromFile());
-        for (Person person : cb.persons) {
-            this.persons.add(person);
+        try {
+            ContactsBook cb = (ContactsBook) xstream.fromXML(s);
+            for (Person person : cb.persons) {
+                this.persons.add(person);
+            }
         }
+        catch (Exception e){ e.getMessage();}
     }
 
     public void saveXmlStringToFile() {
         try {
-            FileWriter fileWriter = new FileWriter("ContactsBook.xml", false);
+            FileWriter fileWriter = new FileWriter("ContactsBook.xml");
 
             try {
                 fileWriter.write(this.convertToXmlString());
-                fileWriter.flush();
+                //fileWriter.flush();
             } finally {
                 fileWriter.close();
             }
@@ -76,18 +78,20 @@ public class ContactsBook {
     }
 
     public String openXmlStringFromFile() {
-        String s = null;
+
+        String s = "";
 
         try {
             FileReader reader = new FileReader("ContactsBook.xml");
             int c;
             while ((c = reader.read()) != -1) {
-                s += (char) c;
+                s = s + (char) c;
             }
             reader.close();
         } catch (IOException ex) {
             System.out.println(ex.getMessage());
         }
+        System.out.println(s);
         return s;
     }
 
@@ -100,7 +104,7 @@ public class ContactsBook {
         String buff = null;
 
         ContactsBook contactsBook = new ContactsBook();
-        contactsBook.openXmlStringFromFile();
+        contactsBook.convertFromXmlString(contactsBook.openXmlStringFromFile());
 
         while (!isExit) {
             System.out.println("Введите код операции:\n" +
@@ -126,6 +130,7 @@ public class ContactsBook {
             }
             if (operation.equals("exit")) {
                 System.out.println("Всего доброго! Ждем Вас снова!");
+                contactsBook.saveXmlStringToFile();
                 System.exit(-1);
             }
 
