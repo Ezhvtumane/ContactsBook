@@ -1,8 +1,6 @@
 import com.thoughtworks.xstream.XStream;
 
-import java.awt.peer.SystemTrayPeer;
 import java.io.*;
-import java.nio.channels.Pipe;
 import java.util.ArrayList;
 
 public class ContactsBook {
@@ -27,18 +25,19 @@ public class ContactsBook {
             if (name.equals(person.getName())) {
                 arrayOfFoundedContacts.add(person);
             }
-            //System.out.println(person.toString() + "\n");
         }
         return arrayOfFoundedContacts;
     }
 
     public void showAllContacts() {
+        int i = 0;
         for (Person person : this.persons) {
-            System.out.println(person.toString() + "\n");
+            i++;
+            System.out.println(i + ") " + person.toString() + "\n");
         }
     }
 
-    public String convertToXmlString() {
+    public String convertFromContactsBookToXmlString() {
         XStream xstream = new XStream();
         xstream.alias("person", Person.class);
         xstream.alias("ContactsBook", ContactsBook.class);
@@ -47,7 +46,7 @@ public class ContactsBook {
         return xstream.toXML(this);
     }
 
-    public void convertFromXmlString(String s) {
+    public void convertFromXmlStringToContactsBook(String s) {
         XStream xstream = new XStream();
         xstream.alias("person", Person.class);
         xstream.alias("ContactsBook", ContactsBook.class);
@@ -57,8 +56,9 @@ public class ContactsBook {
             for (Person person : cb.persons) {
                 this.persons.add(person);
             }
+        } catch (Exception e) {
+            e.getMessage();
         }
-        catch (Exception e){ e.getMessage();}
     }
 
     public void saveXmlStringToFile() {
@@ -66,8 +66,9 @@ public class ContactsBook {
             FileWriter fileWriter = new FileWriter("ContactsBook.xml");
 
             try {
-                fileWriter.write(this.convertToXmlString());
-                //fileWriter.flush();
+                if (!this.persons.isEmpty())
+                    fileWriter.write(this.convertFromContactsBookToXmlString());
+                fileWriter.close();
             } finally {
                 fileWriter.close();
             }
@@ -89,29 +90,30 @@ public class ContactsBook {
             }
             reader.close();
         } catch (IOException ex) {
-            System.out.println(ex.getMessage());
+            System.out.println("\n" + ex.getMessage());
+            System.out.println("Файл ContactsBook.xml не найден. Создаю новый." + "\n");
         }
-        System.out.println(s);
         return s;
     }
 
     public static void main(String args[]) {
 
-        boolean isExit = false;
+        //boolean isExit = false;
         System.out.println("Приложение Записная книжка.");
         BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-        String operation = null;
-        String buff = null;
+        String operation = "";
+        String buff = "";
 
         ContactsBook contactsBook = new ContactsBook();
-        contactsBook.convertFromXmlString(contactsBook.openXmlStringFromFile());
+        contactsBook.convertFromXmlStringToContactsBook(contactsBook.openXmlStringFromFile());
 
-        while (!isExit) {
+        while (true) {
             System.out.println("Введите код операции:\n" +
                     "1 - Добавить новый контакт;\n" +
                     "2 - Показать все записанные контакты;\n" +
                     "3 - Найти контакт по имени;\n" +
-                    "4 - Удалить контакт\n");
+                    "4 - Удалить контакт;\n" +
+                    "exit - Выйти из программы с сохранением текущей записной книжки.");
             try {
                 operation = reader.readLine();
             } catch (IOException e) {
@@ -136,18 +138,21 @@ public class ContactsBook {
 
             switch (Integer.parseInt(operation)) {
                 case 1: {
-                    contactsBook.addContact(Person.addNewPerson());
+                    Person p = Person.addNewPerson();
+                    contactsBook.addContact(p);
+                    System.out.println("\n" + "Добавлен контакт: " + p.toString() + "\n");
                 }
                 break;
                 case 2: {
+                    System.out.println("\n" + "Контакты: ");
                     contactsBook.showAllContacts();
                 }
                 break;
                 case 3: {
                     try {
-                        System.out.println("Введите имя для поиска: ");
+                        System.out.print("Введите имя для поиска: ");
                         buff = reader.readLine();
-                        System.out.println("Найдены следующие контакты:");
+                        System.out.println("\n" + "Найдены следующие контакты:");
                         for (Person person : contactsBook.findContactByName(buff)) {
                             System.out.println(person.toString() + "\n");
                         }
@@ -163,7 +168,17 @@ public class ContactsBook {
                         buff = reader.readLine();
                         for (Person person : contactsBook.findContactByName(buff)) {
                             System.out.println("Будет удален следующий контакт: " + person.toString() + "\n");
-                            contactsBook.deleteContact(person);
+                            System.out.println("Вы уверены, что хотите удалить контакт? y/n");
+                            buff = reader.readLine();
+                            if (buff.equals("y")) {
+                                contactsBook.deleteContact(person);
+                                System.out.println("Выполнено удаление!");
+                            } else if (buff.equals("n"))
+                                System.out.println("Отмена удаления!");
+                            else {
+                                System.out.println("Некорректный ввод. Операция отменена.");
+                                break;
+                            }
                         }
                     } catch (IOException e) {
                         e.getMessage();
