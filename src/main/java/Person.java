@@ -46,7 +46,7 @@ public class Person {
 
     @Override
     public String toString() {
-        return "Name: " + this.name + ", phone number: " + this.phoneNumber
+        return "Имя: " + this.name + ", телефонный номер: " + this.phoneNumber
                 + ", e-mail: " + this.email;
     }
 
